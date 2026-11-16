@@ -1,0 +1,36 @@
+name: Compilar y probar inventario
+on: [push, pull_request]
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0.46
+        env:
+          MYSQL_ROOT_PASSWORD: ci_test_only
+          MYSQL_DATABASE: inventario_test
+        ports: ['3306:3306']
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost -pci_test_only"
+          --health-interval=10s --health-timeout=5s --health-retries=12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+      - name: Compilar y verificar dominio
+        run: mvn --batch-mode clean verify
+      - name: Crear esquema de pruebas
+        env:
+          MYSQL_PWD: ci_test_only
+        run: sed 's/inventario_ues/inventario_test/g' sql/01_schema.sql | mysql -h 127.0.0.1 -u root --port=3306
+      - name: Pruebas de integración
+        env:
+          MYSQL_URL: jdbc:mysql://127.0.0.1:3306/inventario_test?sslMode=REQUIRED&connectTimeout=5000&socketTimeout=10000
+          MYSQL_USER: root
+          MYSQL_PASSWORD: ci_test_only
+          MYSQL_TEST_MODE: 'true'
+        run: mvn --batch-mode test-compile exec:java -Dexec.mainClass=sv.edu.ues.inventario.MySqlIntegrationTest -Dexec.classpathScope=test
+

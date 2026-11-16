@@ -1,6 +1,6 @@
 # Sistema de inventario · Clave 2 / RF-02
 
-Aplicación de escritorio Java Swing con persistencia en **MySQL Community Server 8.0.46**, solicitada en sustitución de MongoDB. La investigación previa orienta el dominio y el manejo de excepciones. Esta entrega aplica el nuevo enunciado de inventario.
+Aplicación de escritorio Java Swing con persistencia en **MySQL Community Server 8.0.46** La investigación previa orienta el dominio y el manejo de excepciones. Esta entrega aplica el nuevo enunciado de inventario.
 
 ## Funciones
 
